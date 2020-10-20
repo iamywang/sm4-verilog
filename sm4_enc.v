@@ -99,21 +99,23 @@ module sm4_enc (input clk,
             next = 2'b00;
         endcase
         end
-        
+
         always@(posedge clk) begin
             if (sm4_enable)
-                current <= next;
-
+                current = next;
+        end
+        
+        always@(posedge clk) begin
             if (current == 2'b10)
-                reg_tmp <= {reg_tmp[30:0], 1'b1};
+                reg_tmp = {reg_tmp[30:0], 1'b1};
             else
-                reg_tmp <= {reg_tmp[30:0], 1'b0};
+                reg_tmp = {reg_tmp[30:0], 1'b0};
+        end
 
+        always@(posedge clk) begin
             // out
-            if(ready_out)
-            begin
-                res_out <= {word_3, word_2, word_1, word_0};
-            end
+            if(reg_tmp[31])
+                res_out = {word_3, word_2, word_1, word_0};
         end
         
         // cal res_out
