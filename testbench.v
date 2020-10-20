@@ -15,7 +15,7 @@ module testbench ();
     initial
         begin
             clk = 0; // clk信号
-            sm4_enable = 0;
+            sm4_enable = 0; // 控制开关
             enc_dec_enable = 0; // 是否加解密
             enc_dec = 0; // 加密还是解密
             key_exp_enable = 0; // 是否开始密钥扩展
@@ -23,31 +23,18 @@ module testbench ();
             key_in = 0; // 密钥
 
             // gen round key
-            #100;
             sm4_enable = 1;
-            #100;
             key_exp_enable = 1;
-            #100;
-            @(posedge clk)
-            begin
-                key_in = 128'h0123456789abcdeffedcba9876543210;
-            end
+            key_in = 128'h0123456789abcdeffedcba9876543210;
+            data_in = 128'h0123456789abcdeffedcba9876543210;
             wait(key_exp_out);
 
-            // start decrypt
-            #100;
-            enc_dec_enable = 0;
-            #100;
-            enc_dec = 0; // decrypt
-            #100;
-            @(posedge clk)
-            begin
-                data_in = 128'h0123456789abcdeffedcba9876543210;
-            end
+            // start
+            enc_dec_enable = 1;
+            enc_dec = 0;
             wait(ready_out);
 
             // finish
-            #100;
             sm4_enable = 0;
             enc_dec_enable = 0;
         end

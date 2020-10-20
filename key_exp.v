@@ -88,7 +88,8 @@ module key_exp (input clk,
         else
             current <= 1'b0;
         
-        if (current == 1'b1 && next == 1'b0)
+        if (current == 1'b1 && count_for_reg == 5'b0_0000)
+        // if (current == 1'b1 && next == 1'b0)
             key_exp_out <= 1'b1;
         
         if (current == 1'b1)
