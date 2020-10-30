@@ -1,54 +1,65 @@
 module testbench ();
-    reg clk;
-    reg sm4_enable;
-    reg  enc_dec_enable;
-    reg  enc_dec;
-    reg [127:0] data_in;
-    reg key_exp_enable;
-    reg [127:0] key_in;
-    wire ready_out;
-    wire key_exp_out;
-    wire [127:0] res_out;
+    reg CLK;
+    reg RSTn;
+    reg EN;
+    wire BSY;
+    reg  EncDec;
+    reg [127:0] Kin;
+    reg [127:0] Din;
+    wire [127:0] Dout;
+    reg Krdy;
+    reg Drdy;
+    wire Dvld;
+    wire Kvld;
     
-    always #1 clk = ~clk;
+    always #1 CLK = ~CLK;
     
     initial
         begin
-            clk = 0; // clk信号
-            sm4_enable = 0; // 控制开关
-            enc_dec_enable = 0; // 是否加解密
-            enc_dec = 0; // 加密还是解密
-            key_exp_enable = 0; // 是否开始密钥扩展
-            data_in = 0; // 输入数据
-            key_in = 0; // 密钥
+            CLK = 0; // clk信号
+            RSTn = 0; // rstn
+            EN = 0; // 控制开关
+            Krdy = 0; // 是否开始密钥扩展
+            Drdy = 0; // 是否加解密
+            EncDec = 0; // 加密还是解密
+            Din = 0; // 输入数据
+            Kin = 0; // 密钥
 
             // gen round key
-            sm4_enable = 1;
-            key_exp_enable = 1;
-            key_in = 128'h0123456789abcdeffedcba9876543210;
-            data_in = 128'h0123456789abcdeffedcba9876543210;
-            wait(key_exp_out);
+            RSTn = 1;
+            EN = 1;
+            Kin = 128'h0123456789abcdeffedcba9876543210;
+            Din = 128'h0123456789abcdeffedcba9876543210;
+            Krdy = 1;
+            wait(Kvld);
 
             // start
-            enc_dec_enable = 1;
-            enc_dec = 0;
-            wait(ready_out);
+            EncDec = 0;
+            Drdy = 1;
+            wait(Dvld);
 
             // finish
-            sm4_enable = 0;
-            enc_dec_enable = 0;
+            RSTn = 0;
+            EN = 0;
+            Krdy = 0;
+            Drdy = 0;
+            EncDec = 0;
+            Din = 0;
+            Kin = 0;
         end
 
 
-    sm4 s(.clk(clk),
-    .sm4_enable(sm4_enable),
-    .enc_dec_enable(enc_dec_enable),
-    .enc_dec(enc_dec),
-    .data_in(data_in),
-    .key_exp_enable(key_exp_enable),
-    .key_in(key_in),
-    .ready_out(ready_out),
-    .key_exp_out(key_exp_out),
-    .res_out(res_out)
+    SM4 s(.CLK(CLK),
+    .RSTn(RSTn),
+    .EN(EN),
+    .EncDec(EncDec),
+    .Kin(Kin),
+    .Din(Din),
+    .Dout(Dout),
+    .Krdy(Krdy),
+    .Drdy(Drdy),
+    .Kvld(Kvld),
+    .Dvld(Dvld),
+    .BSY(BSY)
     );
 endmodule
